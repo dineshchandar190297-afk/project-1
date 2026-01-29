@@ -1,10 +1,18 @@
 import axios from 'axios';
 
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000') + '/api';
+// Fallback to construction based on current URL if on Render
+let API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+
+if (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com') && API_BASE.includes('127.0.0.1')) {
+    // Attempting to autofix if the user forgot the environment variable
+    API_BASE = window.location.origin.replace('-ui', '-api');
+}
+
+const API_URL = API_BASE + (API_BASE.endsWith('/') ? 'api' : '/api');
 
 const api = axios.create({
     baseURL: API_URL,
-    timeout: 30000, // 30 seconds
+    timeout: 30000,
 });
 
 api.interceptors.request.use((config) => {
