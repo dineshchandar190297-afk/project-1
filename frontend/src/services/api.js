@@ -1,19 +1,18 @@
 import axios from 'axios';
 
 // Simplified connection logic for Render
-let API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+let API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
 
 if (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')) {
-    // Force point to the influence-api sibling service on Render
     API_BASE = 'https://influence-api.onrender.com';
 }
 
-const API_URL = API_BASE.replace(/\/$/, '') + '/api';
+const API_URL = `${API_BASE}/api`;
 console.log('🔗 Connecting to:', API_URL);
 
 const api = axios.create({
     baseURL: API_URL,
-    timeout: 60000, // 60s for cold starts
+    timeout: 60000,
 });
 
 api.interceptors.request.use((config) => {
