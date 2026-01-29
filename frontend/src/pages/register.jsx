@@ -27,20 +27,26 @@ export default function Register() {
             console.error('Registration Error Details:', err);
             const status = err.response?.status;
             const detail = err.response?.data?.detail;
-            const url = err.config?.url || 'unknown';
+
+            // Generate the full URL attempted
+            const baseURL = err.config?.baseURL || '';
+            const relativeUrl = err.config?.url || '';
+            const fullUrl = baseURL.endsWith('/') && relativeUrl.startsWith('/')
+                ? baseURL + relativeUrl.slice(1)
+                : baseURL + relativeUrl;
 
             let message = 'Registration failed.';
 
             if (typeof detail === 'string') {
                 message = detail;
             } else if (err.message === 'Network Error') {
-                message = `CRITICAL: Backend is unreachable at ${url}. Please go to Render and check if 'influence-api' is LIVE.`;
+                message = `CRITICAL: Backend is unreachable at ${fullUrl}. Please go to Render and check if 'influence-api' is LIVE.`;
             } else if (status === 404) {
-                message = `ERROR 404: The system could not find the backend at ${url}.`;
+                message = `ERROR 404: The system could not find the backend at ${fullUrl}.`;
             } else if (status) {
                 message = `SYSTEM ERROR ${status}: ${err.message}`;
             } else {
-                message = `Unexpected Error: ${err.message || 'Unknown code'}. Target: ${url}`;
+                message = `Unexpected Error: ${err.message || 'Unknown code'}. Target: ${fullUrl}`;
             }
 
             setError(message);
