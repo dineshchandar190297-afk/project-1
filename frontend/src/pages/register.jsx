@@ -25,9 +25,22 @@ export default function Register() {
             router.push('/login');
         } catch (err) {
             console.error('Registration Error Details:', err);
+            const status = err.response?.status;
             const detail = err.response?.data?.detail;
-            const message = typeof detail === 'string' ? detail :
-                (err.message === 'Network Error' ? 'Connection to Backend failed. Please wait for the server to wake up.' : 'Registration failed.');
+            const url = err.config?.url || 'unknown';
+
+            let message = 'Registration failed.';
+
+            if (typeof detail === 'string') {
+                message = detail;
+            } else if (err.message === 'Network Error') {
+                message = `Backend unreachable. We are trying to connect to: ${url}. Please ensure the 'influence-api' service is running on Render.`;
+            } else if (status === 404) {
+                message = `Error 404: The API endpoint was not found at ${url}.`;
+            } else if (status) {
+                message = `Error ${status}: ${err.message}`;
+            }
+
             setError(message);
         } finally {
             setLoading(false);

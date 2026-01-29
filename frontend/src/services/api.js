@@ -1,19 +1,29 @@
 import axios from 'axios';
 
-// Fallback to construction based on current URL if on Render
+// Comprehensive detection for Render and Production environments
 let API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
-if (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com') && API_BASE.includes('127.0.0.1')) {
-    // Attempting to autofix if the user forgot the environment variable
-    API_BASE = window.location.origin.replace('-ui', '-api');
+if (typeof window !== 'undefined' && API_BASE.includes('127.0.0.1')) {
+    const host = window.location.hostname;
+    const origin = window.location.origin;
+
+    if (host.includes('onrender.com')) {
+        // Render usually follows 'name-ui' and 'name-api' patterns
+        if (host.includes('-ui.')) {
+            API_BASE = origin.replace('-ui.', '-api.');
+        } else {
+            // Fallback: try to guess if it's just 'name'
+            API_BASE = origin.replace('influence-ui', 'influence-api');
+        }
+    }
 }
 
-const API_URL = API_BASE + (API_BASE.endsWith('/') ? 'api' : '/api');
-console.log('🚀 SYSTEM STATUS: Connecting to API at:', API_URL);
+const API_URL = API_BASE.replace(/\/$/, '') + '/api';
+console.log('💎 API CONNECTION:', API_URL);
 
 const api = axios.create({
     baseURL: API_URL,
-    timeout: 30000,
+    timeout: 40000, // Increased to 40s for cold starts
 });
 
 api.interceptors.request.use((config) => {
