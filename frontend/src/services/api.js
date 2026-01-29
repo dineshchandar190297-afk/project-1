@@ -9,6 +9,7 @@ if (typeof window !== 'undefined' && window.location.hostname.includes('onrender
 }
 
 const API_URL = API_BASE + (API_BASE.endsWith('/') ? 'api' : '/api');
+console.log('🚀 SYSTEM STATUS: Connecting to API at:', API_URL);
 
 const api = axios.create({
     baseURL: API_URL,

@@ -24,7 +24,11 @@ export default function Register() {
             await authService.register(formData.username, formData.email, formData.password, formData.role);
             router.push('/login');
         } catch (err) {
-            setError(err.response?.data?.detail || 'Registration failed.');
+            console.error('Registration Error Details:', err);
+            const detail = err.response?.data?.detail;
+            const message = typeof detail === 'string' ? detail :
+                (err.message === 'Network Error' ? 'Connection to Backend failed. Please wait for the server to wake up.' : 'Registration failed.');
+            setError(message);
         } finally {
             setLoading(false);
         }
