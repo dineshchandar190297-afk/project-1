@@ -34,11 +34,13 @@ export default function Register() {
             if (typeof detail === 'string') {
                 message = detail;
             } else if (err.message === 'Network Error') {
-                message = `Backend unreachable. We are trying to connect to: ${url}. Please ensure the 'influence-api' service is running on Render.`;
+                message = `CRITICAL: Backend is unreachable at ${url}. Please go to Render and check if 'influence-api' is LIVE.`;
             } else if (status === 404) {
-                message = `Error 404: The API endpoint was not found at ${url}.`;
+                message = `ERROR 404: The system could not find the backend at ${url}.`;
             } else if (status) {
-                message = `Error ${status}: ${err.message}`;
+                message = `SYSTEM ERROR ${status}: ${err.message}`;
+            } else {
+                message = `Unexpected Error: ${err.message || 'Unknown code'}. Target: ${url}`;
             }
 
             setError(message);

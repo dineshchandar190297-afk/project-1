@@ -1,29 +1,19 @@
 import axios from 'axios';
 
-// Comprehensive detection for Render and Production environments
+// Simplified connection logic for Render
 let API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
-if (typeof window !== 'undefined' && API_BASE.includes('127.0.0.1')) {
-    const host = window.location.hostname;
-    const origin = window.location.origin;
-
-    if (host.includes('onrender.com')) {
-        // Render usually follows 'name-ui' and 'name-api' patterns
-        if (host.includes('-ui.')) {
-            API_BASE = origin.replace('-ui.', '-api.');
-        } else {
-            // Fallback: try to guess if it's just 'name'
-            API_BASE = origin.replace('influence-ui', 'influence-api');
-        }
-    }
+if (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')) {
+    // Force point to the influence-api sibling service on Render
+    API_BASE = 'https://influence-api.onrender.com';
 }
 
 const API_URL = API_BASE.replace(/\/$/, '') + '/api';
-console.log('💎 API CONNECTION:', API_URL);
+console.log('🔗 Connecting to:', API_URL);
 
 const api = axios.create({
     baseURL: API_URL,
-    timeout: 40000, // Increased to 40s for cold starts
+    timeout: 60000, // 60s for cold starts
 });
 
 api.interceptors.request.use((config) => {
