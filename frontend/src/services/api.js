@@ -1,14 +1,19 @@
 import axios from 'axios';
 
-// Simplified connection logic for Render
-let API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
+let API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
-if (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')) {
-    API_BASE = 'https://influence-api.onrender.com';
+// Ensure it starts with http/https
+if (!API_BASE.startsWith('http')) {
+    API_BASE = `https://${API_BASE}`;
 }
 
-const API_URL = `${API_BASE}/api/`;
-console.log('🔗 Connecting to:', API_URL);
+// Special case: if we are on Render but API_BASE is still local, try to guess
+if (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com') && API_BASE.includes('127.0.0.1')) {
+    API_BASE = window.location.origin.replace('-ui.onrender.com', '-api.onrender.com');
+}
+
+const API_URL = API_BASE.replace(/\/$/, '') + '/api/';
+console.log('🔗 Connecting to API at:', API_URL);
 
 const api = axios.create({
     baseURL: API_URL,
